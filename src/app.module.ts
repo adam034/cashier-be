@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -10,6 +10,8 @@ import * as dotenv from 'dotenv';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './modules/users/entities/user.model';
 import { Profile } from './modules/users/entities/profile.model';
+import { Token } from './modules/auth/entities/token.model';
+import { AuthMiddleware } from './middlewares/auth.middleware';
 dotenv.config();
 const node = process.env.STATE;
 const host = node === 'staging' ? process.env.PG_STAGING_HOST : process.env.PG_PROD_HOST;
@@ -27,15 +29,32 @@ const database = node === 'staging' ? process.env.PG_STAGING_DATABASE : process.
       username: username,
       password: password,
       database: database,
-      models:[User,Profile]
+      models:[User,Profile,Token]
     }),
     AuthModule, 
     UsersModule, 
     ItemsModule, 
     OrdersModule, 
     CategoriesModule],
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService],
 })
-export class AppModule {
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).exclude(
+      {
+        path: `${process.env.BASE_PATH}/auth/login`,
+        method: RequestMethod.POST
+      },
+      {
+        path: `${process.env.BASE_PATH}/auth/refreshtoken`,
+        method: RequestMethod.POST
+      }
+    ).forRoutes(
+      {
+        path: `/**`,
+        method: RequestMethod.ALL,
+      }
+    )
+  }
 }

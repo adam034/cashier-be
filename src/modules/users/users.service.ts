@@ -6,7 +6,7 @@ import { Profile } from './entities/profile.model';
 import { User } from './entities/user.model';
 import * as bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
-
+import * as moment from 'moment';
 @Injectable()
 export class UsersService {
   constructor(
@@ -74,7 +74,14 @@ export class UsersService {
 
     let option = {}
     let condition = {
-      where: {}
+      where: {
+        deletedAt : {
+          [Op.is] : null
+        },
+        ROLE : {
+          [Op.ne]: 1
+        }
+      }
     }
 
     let data:any = []
@@ -130,14 +137,93 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    
+    let data = null
+    try {
+      const user = await this.userModel.findOne({
+        where: {
+          ID: parseInt(id),
+          deletedAt: null
+        },
+        include: [
+          {
+            model: Profile,
+            as: 'profile'
+          }
+        ]
+      })
+
+      if (user) {
+        data = {
+          id: user.ID,
+          username: user.USERNAME,
+          role: user.ROLE,
+          is_active: user.IS_ACTIVE,
+          profile: {
+            name: user.profile.FULL_NAME,
+            address: user.profile.ADDRESS,
+            phone: user.profile.PHONE,
+            photo: user.profile.PHOTO
+          }
+        }
+        
+        return {
+          success: true,
+          message: 'success get detail user',
+          data: data
+        }
+      }
+      
+      return {
+        success: false,
+        message: 'user not found',
+        data: data
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const userUpdate = await this.userModel.update({
+      ROLE: updateUserDto.role
+    },{
+      where: {
+        ID: parseInt(id)
+      }
+    })
+
+    const profileUpdate = await this.profileModel.update({
+      FULL_NAME: updateUserDto.profile.full_name,
+      ADDRESS: updateUserDto.profile.address,
+      PHONE: updateUserDto.profile.phone,
+      PHOTO: updateUserDto.profile.photo
+    },{
+      where: {
+        USERS_ID: parseInt(id)
+      }
+    })
+
+    return {
+      success: true,
+      message: 'successfully update user'
+    }
+
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    const deleteUser = await this.userModel.update({
+      deletedAt: moment().format('YYYY-MM-DD')
+    },{
+      where: {
+        ID: parseInt(id)
+      }
+    })
+
+    return {
+      success: true,
+      message: 'successfully delete user'
+    }
   }
 }

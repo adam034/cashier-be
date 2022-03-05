@@ -10,7 +10,7 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix(process.env.BASE_PATH);
   const config = new DocumentBuilder()
-    .setTitle('LMS API Docs')
+    .setTitle('CASHIER API Docs')
     .setVersion('1.0.0')
     .setBasePath(process.env.BASE_PATH)
     .addBearerAuth()

@@ -21,6 +21,9 @@ export class User extends Model {
     @Column
     IS_ACTIVE: boolean;
 
+    @Column
+    deletedAt: Date;
+
     @HasOne(() => Profile, 'USERS_ID')
     profile: Profile
 }
