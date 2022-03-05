@@ -14,6 +14,7 @@ module.exports = {
      username: 'postgres',
      password: 'postgres',
      database: 'nyoba',
+     seederStorage: "sequelize"
   },
   staging: {
      dialect: 'postgres',
@@ -22,6 +23,7 @@ module.exports = {
      username: username,
      password: password,
      database: database,
+     seederStorage: "sequelize"
   },
   prod: {
      dialect: 'postgres',

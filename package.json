@@ -20,7 +20,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:run": "npx sequelize-cli db:migrate",
-    "migration:create": "npx sequelize-cli migration:generate --name"
+    "migration:create": "npx sequelize-cli migration:generate --name",
+    "seed:create": "npx sequelize-cli seed:generate --name",
+    "seed:run": "npx sequelize-cli db:seed:all"
   },
   "dependencies": {
     "@nestjs/common": "^8.4.0",

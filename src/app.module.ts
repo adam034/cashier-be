@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ItemsModule } from './modules/items/items.module';
-import { OrdersModule } from './modules/orders/orders.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import * as dotenv from 'dotenv';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -12,6 +11,8 @@ import { User } from './modules/users/entities/user.model';
 import { Profile } from './modules/users/entities/profile.model';
 import { Token } from './modules/auth/entities/token.model';
 import { AuthMiddleware } from './middlewares/auth.middleware';
+import { Category } from './modules/categories/entities/category.model';
+import { Item } from './modules/items/entities/item.model';
 dotenv.config();
 const node = process.env.STATE;
 const host = node === 'staging' ? process.env.PG_STAGING_HOST : process.env.PG_PROD_HOST;
@@ -29,12 +30,11 @@ const database = node === 'staging' ? process.env.PG_STAGING_DATABASE : process.
       username: username,
       password: password,
       database: database,
-      models:[User,Profile,Token]
+      models:[User,Profile,Token,Category,Item]
     }),
     AuthModule, 
     UsersModule, 
     ItemsModule, 
-    OrdersModule, 
     CategoriesModule],
   controllers: [],
   providers: [AppService],
@@ -49,6 +49,30 @@ export class AppModule implements NestModule {
       {
         path: `${process.env.BASE_PATH}/auth/refreshtoken`,
         method: RequestMethod.POST
+      },
+      {
+        path: `${process.env.BASE_PATH}/user/detail/:id`,
+        method: RequestMethod.GET
+      },
+      {
+        path: `${process.env.BASE_PATH}/user/list`,
+        method: RequestMethod.GET
+      },
+      {
+        path: `${process.env.BASE_PATH}/categories`,
+        method: RequestMethod.GET
+      },
+      {
+        path: `${process.env.BASE_PATH}/categories/:id`,
+        method: RequestMethod.GET
+      },
+      {
+        path: `${process.env.BASE_PATH}/items/:id`,
+        method: RequestMethod.GET
+      },
+      {
+        path: `${process.env.BASE_PATH}/items`,
+        method: RequestMethod.GET
       }
     ).forRoutes(
       {
