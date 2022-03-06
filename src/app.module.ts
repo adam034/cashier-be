@@ -91,6 +91,14 @@ export class AppModule implements NestModule {
       {
         path: `${process.env.BASE_PATH}/uploads/profile`,
         method: RequestMethod.POST
+      },
+      {
+        path: `${process.env.BASE_PATH}/uploads/category`,
+        method: RequestMethod.POST
+      },
+      {
+        path: `${process.env.BASE_PATH}/uploads/item`,
+        method: RequestMethod.POST
       }
     ).forRoutes(
       {
