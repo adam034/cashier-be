@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -13,6 +14,7 @@ import { Token } from './modules/auth/entities/token.model';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { Category } from './modules/categories/entities/category.model';
 import { Item } from './modules/items/entities/item.model';
+import { UploadsModule } from './modules/uploads/uploads.module';
 dotenv.config();
 const node = process.env.STATE;
 const host = node === 'staging' ? process.env.PG_STAGING_HOST : process.env.PG_PROD_HOST;
@@ -20,7 +22,7 @@ const username = node === 'staging' ? process.env.PG_STAGING_USERNAME : process.
 const password = node === 'staging' ? process.env.PG_STAGING_PASSWORD : process.env.PG_PROD_PASSWORD;
 const port = node === 'staging' ? parseInt(process.env.PG_STAGING_PORT) : parseInt(process.env.PG_PROD_PORT);
 const database = node === 'staging' ? process.env.PG_STAGING_DATABASE : process.env.PG_STAGING_DATABASE;
-
+console.log(join(__dirname, '..', 'uploads/profile'))
 @Module({
   imports: [
     SequelizeModule.forRoot({
@@ -32,10 +34,22 @@ const database = node === 'staging' ? process.env.PG_STAGING_DATABASE : process.
       database: database,
       models:[User,Profile,Token,Category,Item]
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads/profile'),
+      serveRoot:'/profile'
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads/category'),
+      serveRoot:'/category'
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads/item'),
+      serveRoot:'/item'
+    }),
     AuthModule, 
     UsersModule, 
     ItemsModule, 
-    CategoriesModule],
+    CategoriesModule, UploadsModule],
   controllers: [],
   providers: [AppService],
 })
@@ -73,6 +87,10 @@ export class AppModule implements NestModule {
       {
         path: `${process.env.BASE_PATH}/items`,
         method: RequestMethod.GET
+      },
+      {
+        path: `${process.env.BASE_PATH}/uploads/profile`,
+        method: RequestMethod.POST
       }
     ).forRoutes(
       {
