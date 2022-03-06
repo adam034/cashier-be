@@ -8,7 +8,7 @@ export class UploadsService {
         const [header] = process.env.SSL === "TRUE" ? req.headers.host.split(":") : [req.headers.host];
         const protocol = process.env.SSL === "TRUE" ? "https" : "http";
         let path = file_url.path.replace(/\\/g, "/").split('uploads');
-        let url = `${protocol}://${header}/${path[1]}`;
+        let url = `${protocol}://${header}${path[1]}`;
         return url
     }
 }
